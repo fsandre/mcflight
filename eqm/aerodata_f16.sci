@@ -17,12 +17,43 @@ function [S, K, DA, L] = angle_interp(angle_list_deg, angle_deg)
 endfunction
 
 function [S, K, DA, L] = alpha_interp(alpha_deg)
-    [S, K, DA, L] = angle_interp(-10:5:45, alpha_deg)
+    [S, K, DA, L] = angle_interp(-10:5:45, alpha_deg);
 endfunction
 
 function [S, M, DE, N] = elev_interp(elev_deg)
     [S, M, DE, N] = angle_interp(-24:12:24, elev_deg);
 endfunction
+
+function y = coef_alpha_elev(A, alpha_deg, elev_deg)
+    [S, K, DA, L] = alpha_interp(alpha_deg);
+    [S, M, DE, N] = elev_interp(elev_deg);
+    T = A(M,K);
+    U = A(N,K);
+    V = T + abs(DA)*(A(M,L) - T);
+    W = U + abs(DA)*(A(N,L) - U);
+    y = V + (W-V)*abs(DE);
+endfunction
+
+function y = coef_alpha_beta(A, alpha_deg, beta_deg, alpha_list_deg, beta_list_deg)
+    [out, inp] = argn(0);
+    if inp<4 then
+        [S, K, DA, L] = alpha_interp(alpha_deg);
+    else
+        [S, K, DA, L] = angle_interp(alpha_list_deg, alpha_deg);
+    end
+    if inp<5 then
+        [S, M, DB, N] = angle_interp(0:5:30, beta_deg);
+    else
+        [S, M, DB, N] = angle_interp(beta_list_deg, beta_deg);
+    end 
+    T = A(M,K);
+    U = A(N,K);
+    V = T + abs(DA)*(A(M,L)-T);
+    W = U + abs(DA)*(A(N,L)-U);
+    y = V + (W-V)*abs(DB);
+endfunction
+
+// Public functions
 
 function D = aerodynamic_damp(alpha_deg)
     // D1 = CXq; D2 = CYr; D3 = CYp; D4 = CZq; D5 = Clr; D6 = Clp; D7 = Cmq;
@@ -41,37 +72,8 @@ function D = aerodynamic_damp(alpha_deg)
         
     [S, K, DA, L] = alpha_interp(alpha_deg);
     for i=1:9
-        D(i) = A(K,i) + abs(DA)*(A(L,i) - A(K,i));
+        D(i) = A(i,K) + abs(DA)*(A(i,L) - A(i,K));
     end
-endfunction
-
-function y = coef_alpha_elev(A, alpha_deg, elev_deg)
-    [S, K, DA, L] = alpha_interp(alpha_deg);
-    [S, M, DE, N] = elev_interp(elev_deg);
-    T = A(K,M);
-    U = A(K,N);
-    V = T + abs(DA)*(A(L,M) - T);
-    W = U + abs(DA)*(A(L,N) - U);
-    y = V + (W-V)*abs(DE);
-endfunction
-
-function y = coef_alpha_beta(A, alpha_deg, beta_deg, alpha_list_deg, beta_list_deg)
-    if ~exists("alpha_list_deg","local") then
-        [S, K, DA, L] = alpha_interp(alpha_deg);
-    else
-        [S, K, DA, L] = angle_interp(alpha_list_deg, alpha_deg);
-    end
-    if ~exist("beta_list_deg","local") then
-        [S, M, DB, N] = angle_interp(0:5:30, beta_deg);
-    else
-        [S, M, DB, N] = angle_interp(beta_list_deg, beta_deg);
-    end 
-    T = A(K,M);
-    U = A(K,N);
-    V = T + ABS(DA)*(A(L,M)-T);
-    W = U + ABS(DA)*(A(L,N)-U);
-    DUM = V + (W-V)*ABS(DB);
-    y = DUM*(beta_deg/abs(beta_deg));
 endfunction
 
 function y = CX(alpha_deg, elev_deg) // x-axis aerodynamic force coeff.
@@ -94,6 +96,7 @@ function y = CZ(alpha_deg, beta_deg, elev_deg) // z-axis force coeff.
         .770    .241    -.100   -.416   -.731   -1.053  -1.366  -1.646  -1.917  -2.120  -2.248  -2.229
         ];
     [S, K, DA, L] = alpha_interp(alpha_deg);
+    S = A(K) + abs(DA)*(A(L) - A(K));
     y = S*(1-(beta_deg/57.3)^2)-.19*(elev_deg/25);
 endfunction
 
@@ -118,7 +121,8 @@ function y = CL(alpha_deg, beta_deg) // rolling moment coeff.
         .007    -.010   -.023   -.034   -.049   -.046   -.068   -.071   -.060   -.058   -.062   -.059
         .009    -.011   -.023   -.037   -.050   -.047   -.074   -.079   -.091   -.076   -.077   -.076   
         ];
-    y = coef_alpha_beta(A, alpha_deg, beta_deg);
+    DUM = coef_alpha_beta(A, alpha_deg, abs(beta_deg));
+    y = DUM*(beta_deg/abs(beta_deg));
 endfunction
 
 function y = CN(alpha_deg, beta_deg) //yawing moment coeff.
@@ -131,7 +135,8 @@ function y = CN(alpha_deg, beta_deg) //yawing moment coeff.
         .074    .086    .093    .089    .080    .062    .049    .022    .028    -.012   -.002   -.013
         .079    .090    .106    .106    .096    .080    .068    .030    .064    .015    .011    -.001
         ];
-    y = coef_alpha_beta(A, alpha_deg, beta_deg);
+    DUM = coef_alpha_beta(A, alpha_deg, abs(beta_deg));
+    y = DUM*(beta_deg/abs(beta_deg));
 endfunction
 
 function y = DLDA(alpha_deg, beta_deg) // rolling moment due to ailerons

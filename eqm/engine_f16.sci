@@ -72,26 +72,26 @@ function y = thrust(pow, alt_ft, rmach) // engine thrust model
     if (I>=6) then 
         I=5;
     end
-    DH = H - double(I);
-    RM = 5.0*rmach + 1;
-    M = int(RM);
+    DH = H - double(I-1);
+    RM = 5.0*rmach;
+    M = int(RM)+1;
     if (M>=6) then
         M = 5;
     end
-    DM = RM - double(M);
+    DM = RM - double(M-1);
     CDH = 1.0 - DH;
     
-    S = B(I,M)  *CDH + B(I+1,M)  *DH;
-    T = B(I,M+1)*CDH + B(I+1,M+1)*DH;
+    S = B(M,I)  *CDH + B(M,I+1)  *DH;
+    T = B(M+1,I)*CDH + B(M+1,I+1)*DH;
     TMIL = S + (T-S)*DM;
     if (pow < 50.0) then
-        S = A(I,M)  *CDH + A(I+1,M)  *DH;
-        T = A(I,M+1)*CDH + A(I+1,M+1)*DH;
+        S = A(M,I)  *CDH + A(M,I+1)  *DH;
+        T = A(M+1,I)*CDH + A(M+1,I+1)*DH;
         TIDL = S + (T-S)*DM;
         y = TIDL + (TMIL-TIDL)*pow*.02;
     else
-        S = C(I,M)  *CDH + C(I+1,M)  *DH;
-        T = C(I,M+1)*CDH + C(I+1,M+1)*DH;
+        S = C(M,I)  *CDH + C(M,I+1)  *DH;
+        T = C(M+1,I)*CDH + C(M+1,I+1)*DH;
         TMAX = S + (T-S)*DM;
         y = TMIL + (TMAX-TMIL)*(pow-50.0)*.02;
     end
