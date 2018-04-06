@@ -9,7 +9,15 @@ function [mach, Q_Pa] = airdata(vt_mps, alt_m)
     Q_Pa = 0.5*rho_kgpm3*vt_mps^2;
 endfunction
 
-function XD = eqm(t, X, controls, params, outputs)
+function v = get_control_value(t, value)
+    if type(value)==13 then
+        v = value(t);
+    else
+        v = value;
+    end
+endfunction
+
+function [XD,outputs] = eqm(t, X, controls, params)
     // F-16 model from Stevens And Lewis,second edition, pg 184
     mass = struct('AXX',9496.0, 'AYY', 55814.0, 'AZZ', 63100.0, 'AXZ', 982.0);
     mass.AXZ2 = mass.AXZ**2;
@@ -29,6 +37,12 @@ function XD = eqm(t, X, controls, params, outputs)
     ft2m = 0.3048;
     kn2mps = 0.514444;
     
+    //Control variables
+    throttle_u = get_control_value(t,controls.throttle);
+    elev_deg = get_control_value(t,controls.elev_deg);
+    ail_deg = get_control_value(t,controls.ail_deg);
+    rudder_deg = get_control_value(t,controls.rudder_deg);
+    
     // Assign state & control variables
     VT_ftps = X(1);
     alpha_deg = X(2)*rad2deg;
@@ -45,18 +59,18 @@ function XD = eqm(t, X, controls, params, outputs)
     // Air data computer and engine model
     [mach, Q_Pa] = airdata(VT_ftps*ft2m, alt_ft*ft2m);
     Q_lbfpft2 = Q_Pa*0.0208854; //from Pascal to lbf/ft2
-    cpow = tgear(controls.throttle);
+    cpow = tgear(throttle_u);
     XD(13) = pdot(pow, cpow);
     thrust_pound = thrust(pow, alt_ft, mach);
     
     // Look-up tables and component buildup
-    CXT = CX(alpha_deg, controls.elev_deg);
-    CYT = CY(beta_deg, controls.ail_deg, controls.rudder_deg);
-    CZT = CZ(alpha_deg, beta_deg, controls.elev_deg);
-    dail = controls.ail_deg/20.0;
-    drdr = controls.rudder_deg/30.0;
+    CXT = CX(alpha_deg, elev_deg);
+    CYT = CY(beta_deg, ail_deg, rudder_deg);
+    CZT = CZ(alpha_deg, beta_deg, elev_deg);
+    dail = ail_deg/20.0;
+    drdr = rudder_deg/30.0;
     CLT = CL(alpha_deg, beta_deg) + DLDA(alpha_deg, beta_deg)*dail + DLDR(alpha_deg, beta_deg)*drdr;
-    CMT = CM(alpha_deg, controls.elev_deg);
+    CMT = CM(alpha_deg, elev_deg);
     CNT = CN(alpha_deg, beta_deg) + DNDA(alpha_deg, beta_deg)*dail + DNDR(alpha_deg, beta_deg)*drdr;
     
     // Add damping derivatives

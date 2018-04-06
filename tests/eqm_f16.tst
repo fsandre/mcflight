@@ -20,7 +20,7 @@ X= [
     10000
     90
 ];
-DX = eqm(0, X, controls, params, outputs);
+DX = eqm(0, X, controls, params);
 DX_expected = [
     -75.23724
     -0.8813491

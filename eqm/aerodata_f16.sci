@@ -122,7 +122,11 @@ function y = CL(alpha_deg, beta_deg) // rolling moment coeff.
         .009    -.011   -.023   -.037   -.050   -.047   -.074   -.079   -.091   -.076   -.077   -.076   
         ];
     DUM = coef_alpha_beta(A, alpha_deg, abs(beta_deg));
-    y = DUM*(beta_deg/abs(beta_deg));
+    if (beta_deg<0) then
+        y = -DUM;
+    else
+        y = DUM;
+    end
 endfunction
 
 function y = CN(alpha_deg, beta_deg) //yawing moment coeff.
@@ -136,7 +140,11 @@ function y = CN(alpha_deg, beta_deg) //yawing moment coeff.
         .079    .090    .106    .106    .096    .080    .068    .030    .064    .015    .011    -.001
         ];
     DUM = coef_alpha_beta(A, alpha_deg, abs(beta_deg));
-    y = DUM*(beta_deg/abs(beta_deg));
+    if (beta_deg<0) then
+        y = -DUM;
+    else
+        y = DUM;
+    end
 endfunction
 
 function y = DLDA(alpha_deg, beta_deg) // rolling moment due to ailerons
