@@ -8,7 +8,7 @@ params.pitch_rate_rps = 0.0;
 params.phi_rad = 0.0;
 params.gamma_rad = 0.0;
 params.stability_axis_roll = 0;
-params.VT_ftps = 350;
+params.VT_ftps = 200;
 params.alt_ft = 0;
 function y = costf16(x)
     y = cost_trim_f16(x,params);
@@ -28,6 +28,7 @@ X0 = [
       S(3)              //alpha_rad
       S(3)              //theta_rad
       0.0               //q_rps
+      params.alt_ft     //alt_ft
       tgear(S(1))       //power_perc
      ];
 
@@ -45,9 +46,10 @@ function [y,xd] = sim_f16(X,U)
     X_full(2) = X(2);
     X_full(5) = X(3);
     X_full(8) = X(4);
-    X_full(13)= X(5);
+    X_full(12)= X(5);
+    X_full(13)= X(6);
     [xd_full,outputs] = eqm(0, X_full, controls, params);
-    xd = xd_full([1 2 5 8 13]);
+    xd = xd_full([1 2 5 8 12 13]);
     y = [
         outputs.nz_g;
         outputs.ny_g;
@@ -75,7 +77,7 @@ endfunction
 t = 0:0.001:3;
 [y,x] = csim(elev_step_lin,t,ss(8,2));
 
-//Removing zero with all pass filter
+//Removing zero with tf -1/(s-[positive zero])
 [z,p,k] = ss2zp(ss(8,2));
-tf_no_zero = zp2tf([-z(1);z],[z(1);p],-k,"c");
+tf_no_zero = zp2tf(z,[z(1);p],-k,"c");
 [y_no_zero,x_no_zero] = csim(elev_step_lin,t,tf_no_zero);

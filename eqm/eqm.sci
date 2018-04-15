@@ -156,5 +156,6 @@ function [XD,outputs] = eqm(t, X, controls, params)
     outputs.mach = mach;
     outputs.q_rps = q_rps;
     outputs.alpha_deg = alpha_deg;
+    outputs.alt_ft = alt_ft;
     
 endfunction

@@ -8,7 +8,7 @@ params.pitch_rate_rps = 0.0;
 params.phi_rad = 0.0;
 params.gamma_rad = 0.0;
 params.stability_axis_roll = 0;
-params.VT_ftps = 350;
+params.VT_ftps = 200;
 params.alt_ft = 0;
 function y = costf16(x)
     y = cost_trim_f16(x,params);
@@ -35,7 +35,7 @@ X0 = [
       0.0               //r_rps
       0.0               //north position ft
       0.0               //east position ft
-      0.0               //alt_ft
+      params.alt_ft     //alt_ft
       tgear(S(1))       //power_perc
      ];
 
@@ -49,8 +49,8 @@ endfunction
 function y = elev_step(t)
     if(t<0.5) then
         y = S(2);
-    elseif (t>=0.5 && t<=0.6)
-        y = S(2) - 1/0.1*(t-0.5);
+    elseif (t>=0.5 && t<=0.53)
+        y = S(2) - 1/0.03*(t-0.5);
     else
         y = S(2)-1;
     end
@@ -61,9 +61,11 @@ y = ode(X0, t(1), t, f16_model);
 nz_g = 0*t;
 nx_g = 0*t;
 nzs_g = 0*t;
+mach = 0*t;
 for i=1:length(t)
     [xd,outputs] = eqm(t(i), y(:,i), controls, params);
     nz_g(i) = outputs.nz_g;
     nx_g(i) = outputs.nx_g;
     nzs_g(i) = nx_g(i)*sin(y(2,i))+nz_g(i)*cos(y(2,i));
+    mach(i) = outputs.mach;
 end
