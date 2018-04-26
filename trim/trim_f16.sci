@@ -1,5 +1,61 @@
 exec('eqm/engine_f16.sci');
 exec('eqm/eqm.sci');
+exec('eqm/params_f16.sci');
+
+function [X, controls] = trim_straight_level(V_ftps, alt_ft, xcg)
+    [out, inp] = argn(0);
+    if inp<3 then
+        xcg = .35;
+    end
+    if inp<2 then
+        alt_ft = 0.0;
+    end
+    params = load_f16();
+    params.xcg = xcg;
+    params.coordinated_turn = 0;
+    params.turn_rate_rps = 0.0;
+    params.roll_rate_rps = 0.0;
+    params.pitch_rate_rps = 0.0;
+    params.phi_rad = 0.0;
+    params.gamma_rad = 0.0;
+    params.stability_axis_roll = 0;
+    params.VT_ftps = V_ftps;
+    params.alt_ft = alt_ft;
+    function y = costf16(x)
+        y = cost_trim_f16(x,params);
+    endfunction
+    S0 = [
+         .0   //throttle 0-1
+         0.0  //elev_deg
+         0.0  //alpha_rad
+         //0.0//ail_deg
+         //0.0//rudder_deg
+         //0.0//beta_rad
+         ];
+         
+    S = fminsearch(costf16, S0);
+    
+    X = [
+          params.VT_ftps    //VT_fps
+          S(3)              //alpha_rad
+          0.0               //beta_rad
+          0.0               //phi_rad
+          S(3)              //theta_rad
+          0.0               //psi_rad
+          0.0               //p_rps
+          0.0               //q_rps
+          0.0               //r_rps
+          0.0               //north position ft
+          0.0               //east position ft
+          params.alt_ft     //alt_ft
+          tgear(S(1))       //power_perc
+         ];
+    
+    controls.throttle = S(1);
+    controls.elev_deg = S(2);
+    controls.ail_deg = 0.0;
+    controls.rudder_deg = 0.0;
+endfunction
 
 function y = cost_trim_f16(S, params)
     X = zeros(13,1);

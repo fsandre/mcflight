@@ -1,5 +1,5 @@
-exec('trim/trim_f16.sci');
-exec('eqm/engine_f16.sci');
+exec('eqm/params_f16.sci');
+params = load_f16();
 params.xcg = .35;
 params.coordinated_turn = 0;
 params.turn_rate_rps = 0.0;

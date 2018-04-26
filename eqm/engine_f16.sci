@@ -17,8 +17,6 @@ function cpow = tgear(thtl) // power command v. thtl. relationship
 endfunction
 
 function y = pdot(p3, p1) // pdot = rate of change of power
-    T = 0;
-    p2 = p3;
     if (p1 >= 50.0) then
         if (p3 >= 50.0) then
             T = 5.0;

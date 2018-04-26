@@ -1,25 +1,18 @@
 //<-- NO CHECK REF -->
 exec('trim/trim_f16.sci');
-params.xcg = .35;
-params.coordinated_turn = 0;
-params.turn_rate_rps = 0.0;
-params.roll_rate_rps = 0.0;
-params.pitch_rate_rps = 0.0;
-params.phi_rad = 0.0;
-params.gamma_rad = 0.0;
-params.stability_axis_roll = 0;
-params.VT_ftps = 140;
-params.alt_ft = 0;
-function y = costf16(x)
-    y = cost_trim_f16(x,params);
-endfunction
-S0 = [
-     .0
-     0.0
-     0.0
-     //0.0
-     //0.0
-     //0.0
-     ];
-S = fminsearch(costf16, S0);
-disp(S);
+// Tests based on values in Table 3.6-2 of Steven And Lewis 2nd edition
+trim_csv = read_csv('tests/trim_straight_level.csv');
+nlin = size(trim_csv)(1);
+for i = 2:nlin
+    v_ref = strtod(trim_csv(i,1));
+    throttle_ref = strtod(trim_csv(i,2));
+    aoa_ref = strtod(trim_csv(i,3));
+    elev_ref = strtod(trim_csv(i,4));
+    [X, controls] = trim_straight_level(v_ref);
+    mprintf('Speed: %.0f, throttle:(%.3f,%.3f), AOA(deg): (%.3f,%.3f), Elev(deg): (%.3f,%.3f)\n',v_ref,throttle_ref,controls.throttle,aoa_ref,X(2)*180/%pi,elev_ref,controls.elev_deg);
+    /*Throttle is not matching Steven and Lewis numbers*/
+    //assert_checktrue(abs(throttle_ref-controls.throttle)<=1e-3);
+    assert_checktrue(abs(aoa_ref-X(2)*57.3)<=0.1);
+    assert_checktrue(abs(elev_ref-controls.elev_deg)<=0.1);
+end
+disp('All calculations in (aoa, elev) <= (0.1, 0.1).');

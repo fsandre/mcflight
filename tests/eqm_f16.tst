@@ -1,5 +1,7 @@
 //<-- NO CHECK REF -->
 exec('eqm/eqm.sci');
+exec('eqm/params_f16.sci');
+params = load_f16();
 params.xcg = .4;
 controls.throttle = 0.9;
 controls.elev_deg = 20;

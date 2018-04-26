@@ -1,6 +1,6 @@
 //<-- NO CHECK REF -->
 exec('eqm/aerodata_f16.sci');
-angle_interp_list = -8:4:12;
+angle_list = -8:4:12;
 [S, K, DA, L] = angle_interp(angle_list, -8);
 assert_checktrue(abs(S-1)<=1e-7);
 assert_checktrue(abs(K-2)<=1e-7);

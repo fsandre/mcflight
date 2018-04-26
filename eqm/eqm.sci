@@ -1,7 +1,7 @@
 exec('atmosphere/atmosphere.sci');
 exec('atmosphere/atmos_constants.sci');
-exec('eqm/engine_f16.sci');
-exec('eqm/aerodata_f16.sci');
+//exec('eqm/engine_f16.sci');
+//exec('eqm/aerodata_f16.sci');
 
 function [mach, Q_Pa] = airdata(vt_mps, alt_m)
     [T_K, p_Pa, rho_kgpm3] = atmosphere(alt_m,0);
@@ -9,6 +9,7 @@ function [mach, Q_Pa] = airdata(vt_mps, alt_m)
     Q_Pa = 0.5*rho_kgpm3*vt_mps^2;
 endfunction
 
+// Utility to allow functions as control inputs 
 function v = get_control_value(t, value)
     if type(value)==13 then
         v = value(t);
@@ -19,20 +20,10 @@ endfunction
 
 function [XD,outputs] = eqm(t, X, controls, params)
     // F-16 model from Stevens And Lewis,second edition, pg 184
-    mass = struct('AXX',9496.0, 'AYY', 55814.0, 'AZZ', 63100.0, 'AXZ', 982.0);
-    mass.AXZ2 = mass.AXZ**2;
-    mass.XPQ = mass.AXZ*(mass.AXX-mass.AYY+mass.AZZ);
-    mass.GAM = mass.AXX*mass.AZZ-mass.AXZ**2;
-    mass.XQR = mass.AZZ*(mass.AZZ-mass.AYY)+mass.AXZ2;
-    mass.ZPQ = (mass.AXX-mass.AYY)*mass.AXX+mass.AXZ2;
-    mass.YPR = mass.AZZ - mass.AXX;
-    mass.weight_pound = 20490.446;
+    mass = params.mass;
+    geom = params.geom;
+    
     g0_ftps2 = 32.17;
-    mass.mass_slug = mass.weight_pound/g0_ftps2;
-    
-    geom = struct('wing_ft2', 300, 'wingspan_ft', 30, 'chord_ft', 11.32, 'xcgr_mac', 0.35);
-    geom.engmomenthx_slugft2ps = 160;
-    
     rad2deg = 57.29578;
     ft2m = 0.3048;
     kn2mps = 0.514444;
@@ -59,6 +50,8 @@ function [XD,outputs] = eqm(t, X, controls, params)
     // Air data computer and engine model
     [mach, Q_Pa] = airdata(VT_ftps*ft2m, alt_ft*ft2m);
     Q_lbfpft2 = Q_Pa*0.0208854; //from Pascal to lbf/ft2
+    
+    // Engine model
     cpow = tgear(throttle_u);
     XD(13) = pdot(pow, cpow);
     thrust_pound = thrust(pow, alt_ft, mach);
@@ -157,5 +150,6 @@ function [XD,outputs] = eqm(t, X, controls, params)
     outputs.q_rps = q_rps;
     outputs.alpha_deg = alpha_deg;
     outputs.alt_ft = alt_ft;
+    outputs.thrust_pound = thrust_pound;
     
 endfunction
