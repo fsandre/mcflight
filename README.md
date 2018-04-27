@@ -8,3 +8,18 @@ McFlight stands for Mechanics of Flight and so far is only a translation of the 
 * trim: scripts for finding trim conditions, i.e., steady flight conditions.
 
 Notice that the scripts shall be executed from the root folder.
+
+This is a very first version of the toolset for control design and there are many points of potential improvement. Although for a quick check to see if all things are running I'd recommend:
+
+* Run the tests. Setting the current directory to root folder of mcflight, execute:
+```
+--> exec('tests\aerodata_interpolation_f16.tst');
+--> exec('tests\atmosphere.tst');
+--> exec('tests\engine_f16.tst');
+--> exec('tests\eqm_f16.tst');
+--> exec('tests\trim_f16.tst');
+```
+* Run a script example which plots a comparison between linear and non-linear simulations of F-16 model:
+```
+--> exec('sim/plots_lin_nlin_f16.sce');
+```
