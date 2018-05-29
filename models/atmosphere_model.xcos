@@ -5,7 +5,7 @@
     <root>
       <mxCell id="0:1:0"/>
       <mxCell id="0:2:0" parent="0:1:0"/>
-      <SuperBlock id="1124d115:1634539d5cc:-7fe4" parent="0:2:0" interfaceFunctionName="SUPER_f" blockType="h" dependsOnU="0" dependsOnT="0" simulationFunctionName="super" simulationFunctionType="DEFAULT" style="SUPER_f">
+      <SuperBlock id="1124d115:1634539d5cc:-7fe4" parent="0:2:0" interfaceFunctionName="SUPER_f" blockType="h" dependsOnU="0" dependsOnT="0" simulationFunctionName="super" simulationFunctionType="DEFAULT" style="SUPER_f;image=images/clouds-2329680_640.jpg" value="Atmosphere_ISA">
         <ScilabDouble as="exprs" height="0" width="0"/>
         <ScilabDouble as="realParameters" height="0" width="0"/>
         <ScilabDouble as="integerParameters" height="0" width="0"/>
@@ -21,6 +21,9 @@
         <Array as="oDState" scilabClass="ScilabList"/>
         <Array as="equations" scilabClass="ScilabList"/>
         <mxGeometry as="geometry" x="110.0" y="30.0" width="300.0" height="260.0"/>
+        <mxCell connectable="0" id="1124d115:1634539d5cc:-7fe4#identifier" style="noLabel=0;opacity=0" value="Atmosphere_ISA" vertex="1">
+          <mxGeometry as="geometry" x="150.0" y="286.0" width="0.0" height="0.0"/>
+        </mxCell>
         <SuperBlockDiagram as="child" background="-1" gridEnabled="1" title="">
           <Array as="context" scilabClass="String[]"></Array>
           <mxGraphModel as="model">
