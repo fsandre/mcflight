@@ -151,5 +151,7 @@ function [XD,outputs] = eqm(t, X, controls, params)
     outputs.alpha_deg = alpha_deg;
     outputs.alt_ft = alt_ft;
     outputs.thrust_pound = thrust_pound;
+    outputs.aero_forces = [CXT CYT CZT];
+    outputs.aero_moments = [CLT CMT CNT];
     
 endfunction

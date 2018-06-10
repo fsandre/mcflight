@@ -2,7 +2,7 @@ exec('eqm/engine_f16.sci');
 exec('eqm/eqm.sci');
 exec('eqm/params_f16.sci');
 
-function [X, controls] = trim_straight_level(V_ftps, alt_ft, xcg)
+function [X, controls, params] = trim_straight_level(V_ftps, alt_ft, xcg)
     [out, inp] = argn(0);
     if inp<3 then
         xcg = .35;

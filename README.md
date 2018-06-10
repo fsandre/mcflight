@@ -26,3 +26,7 @@ This is a very first version of the toolset for control design and there are man
 
 ## Known issues
 * The F-16 model trimmed power curve obtained by McFlight so far is not identical to the curve in Figure 3.6-3 of Stevens And Lewis. The throttle setting values obtained here are not corresponding to the ones in the book. This must be checked.
+
+## TODO
+* Lateral aerodynamic model needs to be well tested;
+* Trimming for lateral-directional conditions (coordinated turn, for example);
