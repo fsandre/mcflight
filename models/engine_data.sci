@@ -1,4 +1,4 @@
-pow_initial = 0;
+initial.throttle_pow = 0;
 alt_ft_col = [0 10000 20000 30000 40000 50000];
 mach_row = [0.0 0.2 0.4 0.6 0.8 1.0];
 

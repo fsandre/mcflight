@@ -1,5 +1,6 @@
-geom = struct('wing_ft2', 300, 'wingspan_ft', 30, 'chord_ft', 11.32, 'xcgr_mac', 0.35);
-geom.engmomenthx_slugft2ps = 160;
+exec('models/mass_geom_data.sci');
+params = load_aircraft_params();
+geom = params.geom;
 params.xcg = 0.35;
 
 alpha_deg_row = -10:5:45;

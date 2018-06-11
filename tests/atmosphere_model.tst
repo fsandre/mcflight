@@ -1,5 +1,5 @@
 //<-- NO CHECK REF -->
-exec('atmosphere/atmosphere.sci');
+exec('models/atmos_constants.sci');
 isa_ref_csv = read_csv('tests/isa_atm_sample.csv');
 nlin = size(isa_ref_csv)(1);
 for i = 2:nlin
