@@ -1,4 +1,4 @@
-exec('models/mass_geom_params.sci');
+exec('models/mass_geom_data.sci');
 exec('models/atmos_constants.sci');
 params = load_aircraft_params();
 geom = params.geom;
