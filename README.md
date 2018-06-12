@@ -38,6 +38,8 @@ You can run tests for each superblock seperatedly:
 ```
 * In order to run the simulation with full model. Run the script 'tests/aircraft_model.tst' and hit play.
 
+![full aircraft model](https://raw.githubusercontent.com/fsandre/mcflight/master/xcos/full_model.png "Full aircraft model")
+
 ## Known issues
 * The F-16 model trimmed power curve obtained by McFlight so far is not identical to the curve in Figure 3.6-3 of Stevens And Lewis. The throttle setting values obtained here are not corresponding to the ones in the book. This must be checked.
 
