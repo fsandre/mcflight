@@ -1,5 +1,5 @@
 # McFlight
-McFlight stands for Mechanics of Flight and so far is only a translation of the F-16 model found at [Steven and Lewis book](https://www.amazon.com/Aircraft-Control-Simulation-Brian-Stevens/dp/0471371459), where the code is in Fortran. I reproduced it using two approaches: (1) in Scilab scripts and (2) by model-based design using xcos. Each folder tree structure is explained below.
+McFlight stands for Mechanics of Flight and so far is only a translation of the F-16 model found at [Stevens and Lewis book](https://www.amazon.com/Aircraft-Control-Simulation-Brian-Stevens/dp/0471371459), where the code is in Fortran. I reproduced it using two approaches: (1) in Scilab scripts and (2) by model-based design using xcos. Each folder tree structure is explained below.
 
 ## Scripts
 
