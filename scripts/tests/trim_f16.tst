@@ -10,8 +10,7 @@ for i = 2:nlin
     elev_ref = strtod(trim_csv(i,4));
     [X, controls] = trim_straight_level(v_ref);
     mprintf('Speed: %.0f, throttle:(%.3f,%.3f), AOA(deg): (%.3f,%.3f), Elev(deg): (%.3f,%.3f)\n',v_ref,throttle_ref,controls.throttle,aoa_ref,X(2)*180/%pi,elev_ref,controls.elev_deg);
-    /*Throttle is not matching Steven and Lewis numbers*/
-    //assert_checktrue(abs(throttle_ref-controls.throttle)<=1e-3);
+    assert_checktrue(abs(throttle_ref-controls.throttle)<=1e-3);
     assert_checktrue(abs(aoa_ref-X(2)*57.3)<=0.1);
     assert_checktrue(abs(elev_ref-controls.elev_deg)<=0.1);
 end

@@ -1,3 +1,4 @@
+exec('trim/trim_f16.sci');
 exec('eqm/params_f16.sci');
 params = load_f16();
 params.xcg = .35;
@@ -8,7 +9,7 @@ params.pitch_rate_rps = 0.0;
 params.phi_rad = 0.0;
 params.gamma_rad = 0.0;
 params.stability_axis_roll = 0;
-params.VT_ftps = 200;
+params.VT_ftps = 502;
 params.alt_ft = 0;
 function y = costf16(x)
     y = cost_trim_f16(x,params);
@@ -61,7 +62,7 @@ function [y,xd] = sim_f16(X,U)
         outputs.nx_g*sin(X(2)) + outputs.nz_g*cos(X(2));
         ];
 endfunction
-
+disp('Linearizing...');
 [A,B,C,D] = lin(sim_f16, X0, U0);
 ss = syslin("c", A, B, C, D);
 
@@ -75,9 +76,5 @@ function y = elev_step_lin(t)
     end
 endfunction
 t = 0:0.001:3;
+disp('Simulating linear model...');
 [y,x] = csim(elev_step_lin,t,ss(8,2));
-
-//Removing zero with tf -1/(s-[positive zero])
-[z,p,k] = ss2zp(ss(8,2));
-tf_no_zero = zp2tf(z,[z(1);p],-k,"c");
-[y_no_zero,x_no_zero] = csim(elev_step_lin,t,tf_no_zero);

@@ -1,3 +1,4 @@
+clear;
 exec('sim/sim_f16.sce');
 exec('sim/lin_f16.sce');
 

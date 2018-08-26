@@ -17,4 +17,5 @@ function params = load_f16()
     geom.engmomenthx_slugft2ps = 160;
     params.mass = mass;
     params.geom = geom;
+    params.g0_ftps2 = g0_ftps2;
 endfunction

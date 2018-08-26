@@ -1,3 +1,4 @@
+exec('trim/trim_f16.sci');
 exec('eqm/params_f16.sci');
 params = load_f16();
 params.xcg = .35;
@@ -8,7 +9,7 @@ params.pitch_rate_rps = 0.0;
 params.phi_rad = 0.0;
 params.gamma_rad = 0.0;
 params.stability_axis_roll = 0;
-params.VT_ftps = 200;
+params.VT_ftps = 502;
 params.alt_ft = 0;
 function y = costf16(x)
     y = cost_trim_f16(x,params);
@@ -57,7 +58,9 @@ function y = elev_step(t)
 endfunction
 t = 0:0.001:3;
 controls.elev_deg = elev_step;
+disp('Simulating...');
 y = ode(X0, t(1), t, f16_model);
+disp('Calculating further outputs...');
 nz_g = 0*t;
 nx_g = 0*t;
 nzs_g = 0*t;
