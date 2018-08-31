@@ -5,6 +5,7 @@ clear
 exec('trim/trim_f16.sci');
 exec('eqm/params_f16.sci');
 exec('eqm/eqm_body.sci');
+exec('eqm/stability_deriv.sci');
 
 /* Setting parameters */
 disp('Setting parameters to trim...')
@@ -65,6 +66,7 @@ controls.throttle = S(1);
 controls.elev_deg = S(2);
 controls.ail_deg = 0.0;
 controls.rudder_deg = 0.0;
+controls_trim = controls;
 function xd = f16_model(t,X)
     [xd] = eqm(t, X, controls, params);
 endfunction
@@ -72,6 +74,30 @@ t = 0:0.001:3;
 controls.elev_deg = elev_step;
 y = ode(X0, t(1), t, f16_model);
 
+/* Calculating stability derivatives for conditon */
+disp('Calculating stability derivatives for conditon...');
+[long_deriv, lat_deriv] = stability_deriv(eqm, X0, controls_trim, params);
+//Matrices for state [alpha q V theta]
+long_ss.E = [params.VT_ftps-long_deriv.Zalphadot 0 0 0
+          -long_deriv.Malphadot 1 0 0
+          0 0 1 0
+          0 0 0 1];
+long_ss.A = [long_deriv.Zalpha   params.VT_ftps+long_deriv.Zq  long_deriv.Zv-long_deriv.XTv*sin(X0(2))   -params.g0_ftps2*sin(X0(5)-X0(2))
+             long_deriv.Malpha   long_deriv.Mq                 long_deriv.Mv                              0
+             long_deriv.Xalpha   0                             long_deriv.Xv+long_deriv.XTv*cos(X0(2))   -params.g0_ftps2*cos(X0(5)-X0(2))
+             0                   1                             0                                         0];
+long_ss.B = [long_deriv.Zelev   -long_deriv.Xthrottle*sin(X0(2))
+             long_deriv.Melev    long_deriv.Mthrottle
+             long_deriv.Xelev    long_deriv.Xthrottle*cos(X0(2))
+             0                   0];
+// Turning [alpha q V theta] -> [V alpha theta q]
+long_ss.T = [0 0 1 0
+             1 0 0 0
+             0 0 0 1
+             0 1 0 0];
+long_ss.E = long_ss.T*long_ss.E*long_ss.T';
+long_ss.A = long_ss.T*long_ss.A*long_ss.T';
+long_ss.B = long_ss.T*long_ss.B;
 /* Simulating in body-axis */
 /*disp('Simulating in body-axis...');
 X0_body = [
