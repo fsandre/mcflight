@@ -15,4 +15,34 @@ for i = 2:nlin
     mprintf('%.3f,%.3f,%.3f,%.3f,',X(7), X(8), X(9), params.xcg);
     mprintf('%.3f,%.3f,%.3f,',outputs.aero_forces(1),outputs.aero_forces(2),outputs.aero_forces(3));
     mprintf('%.3f,%.3f,%.3f\n',outputs.aero_moments(1),outputs.aero_moments(2),outputs.aero_moments(3));
+    
+    controls.ail_deg = +10;
+    [XD, outputs] = eqm(0, X, controls, params);
+    mprintf('%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,',X(2)/%pi*180, X(3)/%pi*180, controls.elev_deg, controls.ail_deg, controls.rudder_deg, X(1));
+    mprintf('%.3f,%.3f,%.3f,%.3f,',X(7), X(8), X(9), params.xcg);
+    mprintf('%.3f,%.3f,%.3f,',outputs.aero_forces(1),outputs.aero_forces(2),outputs.aero_forces(3));
+    mprintf('%.3f,%.3f,%.3f\n',outputs.aero_moments(1),outputs.aero_moments(2),outputs.aero_moments(3));
+    
+    controls.ail_deg = -10;
+    [XD, outputs] = eqm(0, X, controls, params);
+    mprintf('%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,',X(2)/%pi*180, X(3)/%pi*180, controls.elev_deg, controls.ail_deg, controls.rudder_deg, X(1));
+    mprintf('%.3f,%.3f,%.3f,%.3f,',X(7), X(8), X(9), params.xcg);
+    mprintf('%.3f,%.3f,%.3f,',outputs.aero_forces(1),outputs.aero_forces(2),outputs.aero_forces(3));
+    mprintf('%.3f,%.3f,%.3f\n',outputs.aero_moments(1),outputs.aero_moments(2),outputs.aero_moments(3));
+    
+    controls.ail_deg = 0;
+    controls.rudder_deg = +15;
+    [XD, outputs] = eqm(0, X, controls, params);
+    mprintf('%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,',X(2)/%pi*180, X(3)/%pi*180, controls.elev_deg, controls.ail_deg, controls.rudder_deg, X(1));
+    mprintf('%.3f,%.3f,%.3f,%.3f,',X(7), X(8), X(9), params.xcg);
+    mprintf('%.3f,%.3f,%.3f,',outputs.aero_forces(1),outputs.aero_forces(2),outputs.aero_forces(3));
+    mprintf('%.3f,%.3f,%.3f\n',outputs.aero_moments(1),outputs.aero_moments(2),outputs.aero_moments(3));
+    
+    controls.ail_deg = 0;
+    controls.rudder_deg = -15;
+    [XD, outputs] = eqm(0, X, controls, params);
+    mprintf('%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,',X(2)/%pi*180, X(3)/%pi*180, controls.elev_deg, controls.ail_deg, controls.rudder_deg, X(1));
+    mprintf('%.3f,%.3f,%.3f,%.3f,',X(7), X(8), X(9), params.xcg);
+    mprintf('%.3f,%.3f,%.3f,',outputs.aero_forces(1),outputs.aero_forces(2),outputs.aero_forces(3));
+    mprintf('%.3f,%.3f,%.3f\n',outputs.aero_moments(1),outputs.aero_moments(2),outputs.aero_moments(3));
 end

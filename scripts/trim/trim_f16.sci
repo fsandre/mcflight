@@ -129,7 +129,6 @@ function y = cost_trim_f16(S, params)
     X = trim_constraint_f16(X, params);
     XD = eqm(0, X, controls, params);
     y = XD(1)^2 + 100*(XD(2)^2 + XD(3)^2) + 10*(XD(7)^2 + XD(8)^2 + XD(9)^2);
-    disp(y);
 endfunction
 
 function [X_new] = trim_constraint_f16(X, params)
