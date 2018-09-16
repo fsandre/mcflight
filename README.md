@@ -9,7 +9,7 @@ McFlight stands for Mechanics of Flight and so far is only a translation of the 
 * tests: scripts for testing some scripts of the other folders. In case of the atmospheric model, for example, this is only a check of expected values from the literature; for the aerodynamic/engine models, the interpolation is checked as well;
 * trim: scripts for finding trim conditions, i.e., steady flight conditions.
 
-Notice that the scripts shall be executed from the root folder mcflight/scripts.
+Notice that the scripts **shall be executed from the root folder** mcflight/scripts.
 
 This is a very first version of the toolset for control design and there are many points of potential improvement. Although for a quick check to see if all things are running I'd recommend:
 
@@ -28,6 +28,21 @@ This is a very first version of the toolset for control design and there are man
 
 ## Xcos
 
+This is the F16 model implemented using the model-based design approach. 
+
+In order to run the simulation with the full model of coordinated turn:
+
+1. Set the workspace directory to the xcos root folder (mcflight/xcos)
+2. Run the script 'tests/coordinated_turn_example.tst' (this may open the xcos window with the main model).
+```
+--> exec('tests/coordinated_turn_example.tst');
+```
+3. Hit the simulation play (this may take some seconds) and check the 3d plot with the aircraft trajectory.
+
+![coordinated turn simulation](https://raw.githubusercontent.com/fsandre/mcflight/master/xcos/coordinated_turn_example.png "Coordinated turn simulation")
+
+It is also possible to simulate a straight level flight ('tests/aircraft_model.tst').
+
 You can run tests for each superblock seperatedly:
 
 * Setting the current directory to root folder mcflight/xcos, execute:
@@ -36,11 +51,9 @@ You can run tests for each superblock seperatedly:
 --> exec('tests\atmosphere_model.tst');
 --> exec('tests\engine_model.tst');
 ```
-* In order to run the simulation with full model. Run the script 'tests/aircraft_model.tst' and hit play.
 
 ![full aircraft model](https://raw.githubusercontent.com/fsandre/mcflight/master/xcos/full_model.png "Full aircraft model")
 
 ## TODO
-* Lateral aerodynamic model needs to be well tested;
-* Trimming for lateral-directional conditions (coordinated turn, for example);
 * Use model references model in Xcos (there are many redundant superblock implementations).
+* Try different aircraft models on the same structure.

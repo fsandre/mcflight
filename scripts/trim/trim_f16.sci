@@ -80,7 +80,7 @@ function [X, controls, params] = trim_coordinated_turn(V_ftps, alt_ft, turn_rate
         y = cost_trim_f16(x,params);
     endfunction
     S0 = [
-         .8   //(1)throttle 0-1
+         .1   //(1)throttle 0-1
          0.0  //(2)elev_deg
          0.0  //(3)alpha_rad
          0.0  //(4)ail_deg

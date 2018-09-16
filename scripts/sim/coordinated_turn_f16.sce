@@ -1,5 +1,6 @@
 exec('trim/trim_f16.sci');
 exec('eqm/params_f16.sci');
+//[X0, controls, params] = trim_coordinated_turn(800, 1000, 0.3, -3/180*%pi);
 params = load_f16();
 params.xcg = 0.35;
 params.VT_ftps = 502;
