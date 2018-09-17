@@ -218,10 +218,10 @@ function [y,xd] = sim_f16_uw(X,U)
         outputs.nzs_g + xd(4)*l_arm_ft/params.g0_ftps2;
         ];
 endfunction
-[A,B,C,D] = lin(sim_f16_Valpha, X0_Valpha, U0);
-ss_Valpha = syslin("c", A, B, C, D);
-[A,B,C,D] = lin(sim_f16_uw, X0_uw, U0);
-ss_uw = syslin("c", A, B, C, D);
+[A_stab,B_stab,C_stab,D_stab] = lin(sim_f16_Valpha, X0_Valpha, U0);
+ss_Valpha = syslin("c", A_stab, B_stab, C_stab, D_stab);
+[A_body,B_body,C_body,D_body] = lin(sim_f16_uw, X0_uw, U0);
+ss_uw = syslin("c", A_body, B_body, C_body, D_body);
 
 disp('Simulating linear model...');
 function u = elev_step_lin(t)

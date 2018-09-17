@@ -38,9 +38,9 @@ function [long, lat] = stability_deriv(eqm_fun, X0, controls, params, dX)
     X(2) = X0(2) + dX(2)/2;
     [XD_up, out_up] = eqm_fun(0, X, controls, params);
     X(2) = X0(2) - dX(2)/2
-    [XD_down, out_up] = eqm_fun(0, X, controls, params);
-    long.CZalphadot = (CZ_up - CZ_down)./(XD_up(2) - XD_down(2));
-    long.CMalphadot = (CM_up - CM_down)./(XD_up(2) - XD_down(2));
+    [XD_down, out_down] = eqm_fun(0, X, controls, params);
+    long.CZalphadot = (out_up.aero_forces(3) - out_down.aero_forces(3))./(XD_up(2) - XD_down(2));
+    long.CMalphadot = (out_up.aero_moments(3) - out_down.aero_moments(3))./(XD_up(2) - XD_down(2));
 
     // Speed derivatives
     X = X0;
