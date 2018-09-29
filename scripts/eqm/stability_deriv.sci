@@ -112,6 +112,30 @@ function [long, lat] = stability_deriv(eqm_fun, X0, controls, params, dX)
     long.Xthrottle = long.Thrust_throttle/m;
     long.Mthrottle = qS/m * long.CMthrottle;
     
+    //Matrices for state [alpha q V theta]
+    long.E = [params.VT_ftps-long.Zalphadot 0 0 0
+              -long.Malphadot 1 0 0
+              0 0 1 0
+              0 0 0 1];
+    long.A = [long.Zalpha   params.VT_ftps+long.Zq  long.Zv-long.XTv*sin(X0(2))   -params.g0_ftps2*sin(X0(5)-X0(2))
+              long.Malpha   long.Mq                 long.Mv                              0
+              long.Xalpha   0                       long.Xv+long.XTv*cos(X0(2))   -params.g0_ftps2*cos(X0(5)-X0(2))
+              0             1                             0                                         0];
+    long.B = [long.Zelev   -long.Xthrottle*sin(X0(2))
+              long.Melev    long.Mthrottle
+              long.Xelev    long.Xthrottle*cos(X0(2))
+              0                   0];
+    // Turning [alpha q V theta] -> [V alpha theta q]
+    T = [0 0 1 0
+         1 0 0 0
+         0 0 0 1
+         0 1 0 0];
+    long.E = T*long.E*T';
+    long.A = T*long.A*T';
+    long.B = T*long.B;
+    long.state_labels = ['V' 'alpha' 'theta' 'q'];
+    long.input_labels = ['elev' 'throttle'];
+    
     // TODO: lateral derivatives
     lat = struct();
 endfunction

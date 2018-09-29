@@ -4,140 +4,88 @@
 clear
 exec('trim/trim_f16.sci');
 exec('eqm/params_f16.sci');
+exec('eqm/eqm_body.sci');
+exec('eqm/stability_deriv.sci');
+exec('eqm/stability_deriv_body.sci');
 
-/* Setting parameters to trim */
-disp('Setting parameters to trim...')
-params = load_f16();
-params.xcg = .35;
-params.coordinated_turn = 0;
-params.turn_rate_rps = 0.0;
-params.roll_rate_rps = 0.0;
-params.pitch_rate_rps = 0.0;
-params.phi_rad = 0.0;
-params.gamma_rad = 0.0;
-params.stability_axis_roll = 0;
-params.VT_ftps = 502;
-params.alt_ft = 0;
-function y = costf16(x)
-    y = cost_trim_f16(x,params);
-endfunction
-S0 = [
-     .0   //throttle 0-1
-     0.0  //elev_deg
-     0.0  //alpha_rad
-     //0.0//ail_deg
-     //0.0//rudder_deg
-     //0.0//beta_rad
-     ];
-S = fminsearch(costf16, S0);
+/* Setting parameters */
+disp('Setting parameters to trim and initial state...')
+V_ftps = 200;
+alt_ft = 0;
+xcg = 0.35;
+[X0, controls, params] = trim_straight_level(V_ftps, alt_ft, xcg);
 
-/* Initializing state to simulate */
-disp('Initializing state to simulate...')
-X0 = [
-      params.VT_ftps    //VT_fps
-      S(3)              //alpha_rad
-      0.0               //beta_rad
-      0.0               //phi_rad
-      S(3)              //theta_rad
-      0.0               //psi_rad
-      0.0               //p_rps
-      0.0               //q_rps
-      0.0               //r_rps
-      0.0               //north position ft
-      0.0               //east position ft
-      params.alt_ft     //alt_ft
-      tgear(S(1))       //power_perc
-     ];
+/* Initializing state in body axis */   
+X0_body = X0; // this is in stability-axis, i.e, states:
+              // X0(1)=V, X0(2)=alpha, X0(3)=beta
+X0_body(1) = params.VT_ftps*cos(X0(2))*cos(X0(3));
+X0_body(2) = params.VT_ftps*sin(X0(3));
+X0_body(3) = params.VT_ftps*sin(X0(2))*cos(X0(3));
 
-controls.throttle = S(1);
-controls.elev_deg = S(2);
-controls.ail_deg = 0.0;
-controls.rudder_deg = 0.0;
-function xd = f16_model(t,X)
-    [xd] = eqm(t, X, controls, params);
-endfunction
-function y = elev_step(t)
-    if(t<0.5) then
-        y = S(2);
-    elseif (t>=0.5 && t<=0.53)
-        y = S(2) - 1/0.03*(t-0.5);
-    else
-        y = S(2)-1;
-    end
-endfunction
-t = 0:0.001:3;
-controls.elev_deg = elev_step;
-y = ode(X0, t(1), t, f16_model);
+controls_trim = controls;
 
-/* Setting different possible accelerometer positions */
-disp('Setting different possible accelerometer positions...')
-x_acc_ft = [0 5 6 6.1 7 15];
-len_acc = length(x_acc_ft);
-az_acc_g = zeros(length(t), length(x_acc_ft));
-nz_g = 0*t;
-nx_g = 0*t;
-nzs_g = 0*t;
-mach = 0*t;
-thrust_pound = 0*t;
-/* Calculating further output parameters */
-for i=1:length(t)
-    [xd,outputs] = eqm(t(i), y(:,i), controls, params);
-    nz_g(i) = outputs.nz_g;
-    nx_g(i) = outputs.nx_g;
-    nzs_g(i) = nx_g(i)*sin(y(2,i))+nz_g(i)*cos(y(2,i));
-    mach(i) = outputs.mach;
-    thrust_pound(i) = outputs.thrust_pound*sin(y(5,i));
-    for j=1:len_acc
-        az_acc_g(i,j) = nzs_g(i) + xd(8)*x_acc_ft(j)/params.g0_ftps2;
-    end
-end
+/* Calculating stability derivatives for conditon */
+disp('Calculating stability derivatives for conditon...');
+[long_deriv_body, lat_deriv_body] = stability_deriv_body(eqm_body, X0_body, controls_trim, params);
 
 /* Linearizing... */
 disp('Linearizing...');
-l_arm_ft = 15;
-X0 = [
-      params.VT_ftps    //VT_fps
-      S(3)              //alpha_rad
-      S(3)              //theta_rad
-      0.0               //q_rps
-      params.alt_ft     //alt_ft
-      tgear(S(1))       //power_perc
-     ];
-U0 = [
-     S(1) //throttle
-     S(2) //elevator
-     ];
-function [y,xd] = sim_f16(X,U)
+X0_lin_body = X0([
+                  1    //u_ftps
+                  2    //w_ftps
+                  5    //theta_rad
+                  8    //q_rps
+                 ]);
+                 
+U0 = [ controls_trim.throttle
+       controls_trim.elev_deg];
+                 
+function [y,xd] = sim_f16_body(X,U)
     controls.throttle = U(1);
     controls.elev_deg = U(2);
     controls.ail_deg = 0.0;
     controls.rudder_deg = 0.0;
-    X_full = zeros(20,0);
+    X_full = zeros(13,0);
     X_full(1) = X(1);
-    X_full(2) = X(2);
+    X_full(3) = X(2);
     X_full(5) = X(3);
     X_full(8) = X(4);
-    X_full(12)= X(5);
-    X_full(13)= X(6);
-    [xd_full,outputs] = eqm(0, X_full, controls, params);
-    xd = xd_full([1 2 5 8 12 13]);
-    outputs.nzs_g = outputs.nx_g*sin(X(2)) + outputs.nz_g*cos(X(2));
+    X_full(13) = tgear(U(1));
+    [xd_full,outputs] = eqm_body(0, X_full, controls, params);
+    xd(1) = xd_full(1);
+    xd(2) = xd_full(3);
+    xd(3) = xd_full(5);
+    xd(4) = xd_full(8);
+    outputs.nzs_g = outputs.nx_g*sin(outputs.alpha_deg/180*%pi) + outputs.nz_g*cos(outputs.alpha_deg/180*%pi);
     y = [
-        outputs.nz_g;
-        outputs.ny_g;
         outputs.nx_g;
+        outputs.ny_g;
+        outputs.nz_g; 
+        outputs.alpha_deg;
+        outputs.q_rps;
         outputs.Q_lbfpft2;
         outputs.mach;
-        outputs.q_rps;
-        outputs.alpha_deg;
-        outputs.nzs_g;
-        outputs.nzs_g + xd(4)*l_arm_ft/params.g0_ftps2;
+        outputs.nzs_g; // The sign of Nz is being considered positive up here
         ];
 endfunction
-[A,B,C,D] = lin(sim_f16, X0, U0);
-ss = syslin("c", A, B, C, D);
+[A_body,B_body,C_body,D_body] = lin(sim_f16_body, X0_lin_body, U0);
+
+l_arm_ft = long_deriv_body.Zelev/long_deriv_body.Melev;
+disp('Including nz (stability) on different position as state-space output: '+string(l_arm_ft)+' ft.');
+// The sign of Nz is being considered positive up here
+C_body(9,:) = C_body(8,:) + l_arm_ft/params.g0_ftps2*A_body(4,:);
+D_body(9,:) = D_body(8,:) + l_arm_ft/params.g0_ftps2*B_body(4,:);
+ss_body = syslin("c", A_body, B_body, C_body, D_body);
+
 disp('Simulating linear model...');
+t = 0:0.001:3;
 function u = elev_step_lin(t)
-    u = elev_step(t)-S(2)
+    if(t<0.5) then
+        u = 0;
+    elseif (t>=0.5 && t<=0.53)
+        u = - 1/0.03*(t-0.5);
+    else
+        u = -1;
+    end
 endfunction
-[y,x] = csim(elev_step_lin,t,ss(9,2));
+[y_body,x_body] = csim(elev_step_lin, t, ss_body(:,2));
