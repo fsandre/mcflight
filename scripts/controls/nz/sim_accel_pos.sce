@@ -25,6 +25,16 @@ disp('Including nz (stability) on different position as state-space output: '+st
 C_body(9,:) = C_body(8,:) + l_arm_ft/params.g0_ftps2*A_body(4,:);
 D_body(9,:) = D_body(8,:) + l_arm_ft/params.g0_ftps2*B_body(4,:);
 
+l_arm_ft = 6.1;//long_deriv_body.Zelev/long_deriv_body.Melev;
+disp('Including nz (stability) on different position as state-space output: '+string(l_arm_ft)+' ft.');
+// The sign of Nz is being considered positive up here
+C_body(10,:) = C_body(8,:) + l_arm_ft/params.g0_ftps2*A_body(4,:);
+D_body(10,:) = D_body(8,:) + l_arm_ft/params.g0_ftps2*B_body(4,:);
+
+ss_nz_arm = syslin("c", A_body, B_body, C_body, D_body);
+C_body = C_body(1:9,:);
+D_body = D_body(1:9,:);
+
 //Including actuator model of simple-lag tau=1/20.2
 tau_act = 1/20.2;
 A_aug = [A_body     -B_body(:,2)
@@ -47,8 +57,12 @@ function u = elev_step_lin(t)
     end
 endfunction
 [y_body,x_body] = csim(elev_step_lin, t, ss_act(:,2));
+[y_no_act,x_no_act] = csim(elev_step_lin, t, ss_nz_arm(:,2));
 
-
-
+f1 = scf(1);xgrid;xlabel('time(s)');ylabel('nzs_g');
+title('Nzs (stability axis) measured at different stations');
+plot(t, y_no_act(8,:), t, y_no_act(9,:), t, y_no_act(10,:));
+legend('xa=0 (at CG)', 'xa=15ft (at pilot station)', 'xa=6.1ft (~ center of rotation)');
+f2 = scf(2);
 evans(ss_act(5,2)*180/%pi,10); //root-locus of pitch-rate response
 //cl_pitch_rate = ss_body(5,2)/.(-22);//closing loop in pitch

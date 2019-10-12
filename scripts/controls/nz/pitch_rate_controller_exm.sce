@@ -87,9 +87,18 @@ ss_aug = syslin("c", A_aug, B_aug, C_aug, D_aug);
 //evans(ss_aug(3,2),10);
 
 //closing loop at alpha filter
-k_alpha = 0.5;
+k_alpha = 0.08;
 A_cl_alpha = A_aug - B_aug(:,2)*k_alpha*C_aug(3,:);
-ss_cl_alpha = syslin("c", A_cl_alpha, B_aug, C_aug, D_aug);
-evans(ss_cl_alpha(2,2),10);
+ss_cl_alpha = syslin("c", A_cl_alpha, B_aug(:,2), C_aug, [0;0;0]);
+//evans(ss_cl_alpha(2,1),10);
 
-k_q = 0.2;
+ss_pi = syslin("c", 0, 3, 1, 1); //PI = (s+3)/s
+ss_cl_alpha_pi = ss_cl_alpha*ss_pi;
+//evans(ss_cl_alpha_pi(2,1),10);
+
+k_q = 0.5;
+A_cl_q = ss_cl_alpha_pi.A - ss_cl_alpha_pi.B*k_q*ss_cl_alpha_pi.C(2,:); //closing outer loop
+ss_cl_q = syslin("c", A_cl_q, k_q*ss_cl_alpha_pi.B, ss_cl_alpha_pi.C(2,:), 0);  //making unity feedback
+t = 0:0.01:3;
+q_step_resp = csim(0*t+1, t, ss_cl_q);
+plot(t, q_step_resp);
