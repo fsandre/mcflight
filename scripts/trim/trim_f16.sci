@@ -55,6 +55,10 @@ function [X, controls, params] = trim_straight_level(V_ftps, alt_ft, xcg)
     controls.elev_deg = S(2);
     controls.ail_deg = 0.0;
     controls.rudder_deg = 0.0;
+
+    params.state_labels = {'VT_fps','alpha_rad','beta_rad','phi_rad',...
+                           'theta_rad','psi_rad','p_rps','q_rps','r_rps',...
+                           'north_ft','east_ft','alt_ft','power_perc'};
 endfunction
 
 function [X, controls, params] = trim_coordinated_turn(V_ftps, alt_ft, turn_rate_rps, gamma_rad, xcg)
@@ -128,7 +132,7 @@ function y = cost_trim_f16(S, params)
     X(13) = tgear(controls.throttle);
     X = trim_constraint_f16(X, params);
     XD = eqm(0, X, controls, params);
-    y = XD(1)^2 + 100*(XD(2)^2 + XD(3)^2) + 10*(XD(7)^2 + XD(8)^2 + XD(9)^2);
+    y = XD(1)^2 + 50*(XD(2)^2 + XD(3)^2) + 10*(XD(7)^2 + XD(8)^2 + XD(9)^2);
 endfunction
 
 function [X_new] = trim_constraint_f16(X, params)

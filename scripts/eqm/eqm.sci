@@ -50,7 +50,7 @@ function [XD,outputs] = eqm(t, X, controls, params)
     // Air data computer and engine model
     [mach, Q_Pa] = airdata(VT_ftps*ft2m, alt_ft*ft2m);
     Q_lbfpft2 = Q_Pa*0.0208854; //from Pascal to lbf/ft2
-    
+
     // Engine model
     cpow = tgear(throttle_u);
     XD(13) = pdot(pow, cpow);
@@ -115,15 +115,15 @@ function [XD,outputs] = eqm(t, X, controls, params)
     XD(6) = (Q_sin_phi + r_rps*cos_phi)/cos_theta;
     
     // Moments
-    roll_rps = QSb*CLT;
-    pitch_rps = QS*geom.chord_ft*CMT;
-    yaw_rps = QSb*CNT;
+    roll_lbf_ft = QSb*CLT;
+    pitch_lbf_ft = QS*geom.chord_ft*CMT;
+    yaw_lbf_ft = QSb*CNT;
     p_q = p_rps*q_rps;
     q_r = q_rps*r_rps;
     q_hx = q_rps*geom.engmomenthx_slugft2ps;
-    XD(7) = (mass.XPQ*p_q - mass.XQR*q_r + mass.AZZ*roll_rps + mass.AXZ*(yaw_rps + q_hx))/mass.GAM;
-    XD(8) = (mass.YPR*p_rps*r_rps - mass.AXZ*(p_rps^2 - r_rps^2) + pitch_rps - r_rps*geom.engmomenthx_slugft2ps)/mass.AYY;
-    XD(9) = (mass.ZPQ*p_q - mass.XPQ*q_r + mass.AXZ*roll_rps + mass.AXX*(yaw_rps + q_hx))/mass.GAM;
+    XD(7) = (mass.XPQ*p_q - mass.XQR*q_r + mass.AZZ*roll_lbf_ft + mass.AXZ*(yaw_lbf_ft + q_hx))/mass.GAM;
+    XD(8) = (mass.YPR*p_rps*r_rps - mass.AXZ*(p_rps^2 - r_rps^2) + pitch_lbf_ft - r_rps*geom.engmomenthx_slugft2ps)/mass.AYY;
+    XD(9) = (mass.ZPQ*p_q - mass.XPQ*q_r + mass.AXZ*roll_lbf_ft + mass.AXX*(yaw_lbf_ft + q_hx))/mass.GAM;
     
     // Navigation
     T1 = sin_phi*cos_phi;
